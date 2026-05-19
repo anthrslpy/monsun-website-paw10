@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Chapter {{ chapter.chapter_number }}: {{ chapter.title }} – {{ novel.title }}{% endblock %}
+
+{% block body %}
+<body class="db-body">
+    <div style="max-width: 1200px; width: 100%; margin: 0 auto; padding: 32px 24px;">
+
+        <!-- Back -->
+        <nav style="margin-bottom: 24px; font-size: 14px; color: var(--blue-medium);">
+            <a href="{{ url_for('dashboard') }}" style="color: var(--blue-medium); text-decoration: none; font-weight: 600;
+                background-color: var(--white); border-radius: 9999px; padding: 8px 16px; max-width: 100px;">← Home</a>
+        </nav>
+
+        <!-- Header Chapter -->
+        <div class="card" style="margin-bottom: 24px; text-align: center; background: #82AAFF; color: var(--white);">
+            <p style="font-size: 14px; opacity: 0.85; margin-bottom: 8px;">
+                {{ novel.title }} By {{ novel.author.username }}
+            </p>
+            <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 4px;">
+                Chapter {{ chapter.chapter_number }}
+            </h1>
+            <h2 style="font-size: 20px; font-weight: 400;">{{ chapter.title }}</h2>
+
+            {% if is_author %}
+            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('edit_chapter', novel_id=novel.id, chapter_number=chapter.chapter_number) }}"
+                   style="background: var(--white); color: var(--blue-dark); padding: 8px 20px; border-radius: 20px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                    ✎ Edit Chapter
+                </a>
+                <form method="POST" action="{{ url_for('delete_chapter', novel_id=novel.id, chapter_number=chapter.chapter_number) }}"
+                      onsubmit="return confirm('Delete this chapter?')" style="display: inline;">
+                    <button type="submit"
+                            style="background: #FF856D; color: var(--white); border: none; padding: 8px 20px; border-radius: 20px; font-family:inherit; font-size: 14px; font-weight: 600; cursor: pointer;">
+                        🗑 Delete Chapter
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Konten -->
+        <div class="card chapter-content" style="color: darkslategray; line-height: 1.8;">
+            {{ chapter.content | replace('\n', '<br>') | safe }}
+        </div>
+
+        <!-- Navigasi Chapter -->
+        <div style="display: flex; justify-content: center; align-items: center; margin-top: 24px; flex-wrap: wrap; gap: 12px;">
+            {% if prev_chapter %}
+            <a href="{{ url_for('read_chapter', novel_id=novel.id, chapter_number=prev_chapter.chapter_number) }}"
+               class="btn-blue" style="text-decoration: none;">
+                ← Chapter {{ prev_chapter.chapter_number }}
+            </a>
+            {% else %}
+            <div></div>
+            {% endif %}
+
+            <a href="{{ url_for('novel_detail', novel_id=novel.id) }}"
+               style="color: var(--white); text-decoration: none; background-color: var(--blue-dark); 
+               border-radius: 9999px; padding: 8px 16px; max-width: 200px;">Chapter List</a>
+
+            {% if next_chapter %}
+            <a href="{{ url_for('read_chapter', novel_id=novel.id, chapter_number=next_chapter.chapter_number) }}"
+               class="btn-orange" style="text-decoration: none;">
+                Chapter {{ next_chapter.chapter_number }} →
+            </a>
+            {% else %}
+                {% if is_author %}
+                <a href="{{ url_for('create_chapter', novel_id=novel.id) }}" class="btn-orange" style="text-decoration: none;">
+                    + Add New Chapter
+                </a>
+                {% else %}
+                <span style="color: #991b1b; font-size: 14px; font-style: italic; background-color: #fee2e2;
+               border-radius: 9999px; padding: 8px 16px; max-width: 200px;">
+                    This is the last chapter!
+                </span>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+{% endblock %}

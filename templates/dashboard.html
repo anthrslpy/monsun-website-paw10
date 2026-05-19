@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard – Monsun Library{% endblock %}
+
+{% block body %}
+<body class="db-body">
+    <div class="main-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar card">
+            <div class="logo-container" data-purpose="logo-container">
+                <div class="logo"></div>
+                <div class="logo-text">
+                    <h1>Monsun</h1>
+                    <h1>Library</h1>
+                </div>
+            </div>
+            <nav>
+                <a class="active-nav" href="{{ url_for('dashboard') }}" style="text-decoration: none;">
+                    <span class="text-xl material-symbols-outlined">home</span> Home
+                </a>
+                <a class="nav" href="{{ url_for('dashboard') }}" style="text-decoration: none;">
+                    <span class="text-xl material-symbols-outlined">library_books</span> Library
+                </a>
+                {% if current_user %}
+                <a class="nav" href="{{ url_for('create_novel') }}" style="text-decoration: none;">
+                    <span class="text-xl material-symbols-outlined">edit_note</span> Write
+                </a>
+                {% endif %}
+                <a class="nav" href="#">
+                    <span class="text-xl material-symbols-outlined">settings</span> Settings
+                </a>
+            </nav>
+
+            <!-- Auth buat di sidebar -->
+            <div>
+                {% if current_user %}
+                    <div style="margin-bottom: 12px; padding: 12px 8px; background: var(--blue-light); border-radius: 16px;">
+                        <p style="color: var(--blue-dark); font-size: 16px; font-weight: 600;">
+                            {{ current_user.username }}
+                        </p>
+                        <p style="color: var(--blue-medium); font-size: 14px;">{{ current_user.full_name }}</p>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="faq-btn" style="display: block; text-align: center; text-decoration: none;">
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-orange" style="display: block; text-align: center; text-decoration: none;">
+                        Login / Register
+                    </a>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- SEARCH BAR -->
+            <header class="search-header">
+                <div class="search-container">
+                    <input class="card" placeholder="What do you want to read today?" type="text" id="searchInput" oninput="filterNovels(this.value)" style="color: var(--blue-dark);" />
+                    <span class="material-symbols-outlined search-icon">search</span>
+                </div>
+
+                <!-- Mobile: buat auth, tombol login-logout -->
+                <div class="mobile-auth-bar">
+                    {% if current_user %}
+                        <span style="color: var(--white); font-size: 24px; padding: 10px;">Hello, <strong>{{ current_user.username }} !</strong></span>                        
+                        <a href="{{ url_for('logout') }}" class="btn-red" style="text-decoration: none; font-size: 16px;">Logout</a>
+                    {% else %}
+                    <span style="color: var(--white); font-size: 18px; font-weight: 600; margin-right: 14px;">Login or register to write your own story!</span>    
+                    <a href="{{ url_for('login') }}" class="btn-orange" style="text-decoration: none">Login / Register</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- NEWEST (jadinya bukan trending) -->
+            {% if trending %}
+            <section data-purpose="trending-carousel">
+                <a href="{{ url_for('novel_detail', novel_id=trending.id) }}" style="text-decoration: none;">
+                    <div class="card trending-banner">
+                        <div class="trending-content">
+                            <div class="cover-placeholder" style="background-color: {{ trending.cover_color }};"></div>
+                            <div class="trending-details">
+                                <div class="trending-header">
+                                    <div>
+                                        <h2>{{ trending.title }}</h2>
+                                        <div class="rating-white">By {{ trending.author.username }}</div>
+                                    </div>
+                                    <span class="trending-badge">Newest</span>
+                                </div>
+                                <div class="genre-tag">
+                                    {% for g in trending.genre.split(',') %}
+                                        <span class="tag-orange">{{ g.strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                                <p class="trending-desc">{{ trending.description[:120] }}{% if trending.description|length > 120 %}...{% endif %}</p>
+                                <div class="carousel-indicators">
+                                    <div class="dot-active"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </section>
+            {% endif %}
+
+            <!-- LATEST UPDATE -->
+            <section class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h3 class="section-title" style="margin-bottom: 0;">Latest Update</h3>
+                    {% if current_user %}
+                    <a href="{{ url_for('create_novel') }}" class="btn-small-orange" style="text-decoration: none">+ Write New Novel</a>
+                    {% endif %}
+                </div>
+
+                {% if novels %}
+                <div class="latest-grid" id="novelGrid">
+                    {% for novel in novels %}
+                    <a href="{{ url_for('novel_detail', novel_id=novel.id) }}" class="latest-item-link" data-title="{{ novel.title|lower }}" style="text-decoration: none">
+                        <div class="latest-item">
+                            <div class="latest-cover" style="background-color: {{ novel.cover_color }};"></div>
+                            <div class="latest-info">
+                                <h4>{{ novel.title }}</h4>
+                                <div class="latest-meta">
+                                    <span class="rating-star">By {{ novel.author.username }}</span>
+                                    <span class="tag-orange small-tag">Novel</span>
+                                </div>
+                                <div class="latest-meta" style="margin-top: 2px;">
+                                    {% for g in novel.genre.split(',') %}
+                                        <span class="tag-genre-small">{{ g.strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="chapters">
+                                    {% set chaps = novel.chapters[-3:]|reverse|list %}
+                                    {% for ch in chaps %}
+                                        <p>Chapter {{ ch.chapter_number }}: {{ ch.title }}</p>
+                                    {% else %}
+                                        <p style="color: var(--blue-light);">No chapters available</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 60px 0; color: var(--blue-medium);">
+                    <p style="font-size: 18px;">There's no story yet. Be the first to write!</p>
+                    {% if current_user %}
+                    <a href="{{ url_for('create_novel') }}" class="btn-small-orange" style="display: inline-block; margin-top: 16px; text-decoration: none;">
+                        + Write Now
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-small-orange" style="display: inline-block; margin-top: 16px; text-decoration: none;">
+                        Login to Write
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </section>
+        </main>
+
+        <!-- POPULAR SIDEBAR -->
+        <aside class="popular-sidebar card">
+            <div>
+                <h3 class="section-title">Popular</h3>
+                <div class="popular-tabs" data-purpose="popular-tabs">
+                    <button class="tab-btn active">All Time</button>
+                    <button class="tab-btn inactive">Newest</button>
+                </div>
+
+                <div class="popular-list">
+                    {% for novel in popular_novels %}
+                    <a href="{{ url_for('novel_detail', novel_id=novel.id) }}" style="text-decoration: none;">
+                        <div class="popular-item">
+                            <div class="popular-cover" style="background-color: {{ novel.cover_color }};"></div>
+                            <div class="popular-title">
+                                <h4>{{ novel.title }}</h4>
+                                <div class="popular-meta">
+                                    <span class="rating-star">By {{ novel.author.username }}</span>
+                                    <span class="tag-blue">Novel</span>
+                                </div>
+                                <p class="genres-small">{{ novel.genre }}</p>
+                                <p class="genres-small" style="color: var(--orange);">
+                                    {{ novel.chapters|length }} chapter{{ 's' if novel.chapters|length != 1 else '' }}
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    {% else %}
+                    <p style="color: var(--blue-medium); font-size: 14px;">There's no story yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        function filterNovels(query) {
+            const items = document.querySelectorAll('.latest-item-link');
+            const q = query.toLowerCase().trim();
+            items.forEach(item => {
+                const title = item.dataset.title || '';
+                item.style.display = (!q || title.includes(q)) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+{% endblock %}

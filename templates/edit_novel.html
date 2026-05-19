@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Novel – {{ novel.title }}{% endblock %}
+
+{% block body %}
+<body class="db-body">
+    <div style="max-width: 900px; width: 100%; margin: 0 auto; padding: 32px 24px;">
+        <nav style="margin-bottom: 24px; font-size: 14px; color: var(--blue-medium);">
+            <a href="{{ url_for('dashboard') }}" style="color: var(--blue-medium); text-decoration: none; 
+                background-color: var(--white); border-radius: 9999px; padding: 8px 16px; max-width: 100px;">← Home</a>                        
+        </nav>
+
+        <div class="card" style="min-width: 500px;">
+            <h1 style="font-size: 28px; font-weight: 700; color: var(--orange); margin-bottom: 32px;">Edit Novel Information</h1>
+
+            <form method="POST" action="{{ url_for('edit_novel', novel_id=novel.id) }}">
+                <div class="form-field">
+                    <label>Title</label>
+                    <input type="text" name="title" value="{{ novel.title }}" required />
+                </div>
+
+                <div class="form-field">
+                    <label>Genre</label>
+                    <input type="text" name="genre" value="{{ novel.genre }}" required />
+                </div>
+
+                <div class="form-field">
+                    <label>Synopsis</label>
+                    <textarea name="description" rows="5">{{ novel.description }}</textarea>
+                </div>
+
+                <div class="form-field">
+                    <label>Cover Color</label>
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <input type="color" name="cover_color" value="{{ novel.cover_color }}"
+                               style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer;" />
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 32px;">
+                    <button type="submit" class="btn-orange" style="font-size: 16px; padding: 14px 32px;">
+                        Save Changes
+                    </button>
+                    <a href="{{ url_for('novel_detail', novel_id=novel.id) }}" class="btn-blue" style="text-decoration: none; font-size: 16px; padding: 14px 32px;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Novel – Monsun Library{% endblock %}
+
+{% block body %}
+<body class="db-body">
+    <div style="max-width: 900px; width: 100%; margin: 0 auto; padding: 32px 24px;">
+        <nav style="margin-bottom: 24px; font-size: 14px; color: var(--blue-medium);">
+            <a href="{{ url_for('dashboard') }}" style="color: var(--blue-medium); text-decoration: none; font-weight: 600;
+            background-color: var(--white); border-radius: 9999px; padding: 8px 16px; max-width: 100px;">← Home</a>
+        </nav>
+
+        <div class="card">
+            <h1 style="font-size: 28px; font-weight: 700; color: var(--orange); margin-bottom: 8px;">Create New Novel</h1>
+            <p style="color: var(--blue-medium); margin-bottom: 32px;">
+                Start your story! Fill in the details below to create your novel. You can always edit this information later.
+            </p>
+
+            <form method="POST" action="{{ url_for('create_novel') }}">
+                <div class="form-field">
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="Example: Eternal"
+                           value="{{ request.form.title or '' }}" required />
+                </div>
+
+                <div class="form-field">
+                    <label>Genre</label>
+                    <input type="text" name="genre" placeholder="Example: Romance, Fantasy (comma-separated)"
+                           value="{{ request.form.genre or '' }}" required />
+                </div>
+
+                <div class="form-field">
+                    <label>Description / Synopsis</label>
+                    <textarea name="description" rows="5"
+                              placeholder="Write your novel's synopsis here...">{{ request.form.description or '' }}</textarea>
+                </div>
+
+                <div class="form-field">
+                    <label>Cover Color</label>
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <input type="color" name="cover_color" value="#95B7FF"
+                               style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer;" />
+                        <span style="color: var(--blue-medium); font-size: 14px;">
+                            Choose a color for your novel's cover
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 32px;">
+                    <button type="submit" class="btn-orange" style="font-size: 16px; padding: 14px 32px;">
+                        Create Novel
+                    </button>
+                    <a href="{{ url_for('dashboard') }}" class="btn-blue" style="text-decoration: none; font-size: 16px; padding: 14px 32px;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+{% endblock %}

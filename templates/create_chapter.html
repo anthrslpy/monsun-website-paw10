@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Add Chapter {{ next_number }} – {{ novel.title }}{% endblock %}
+
+{% block body %}
+<body class="db-body">
+    <div style="max-width: 900px; width: 100%; margin: 0 auto; padding: 32px 24px;">
+        <nav style="margin-bottom: 24px; font-size: 14px; color: var(--blue-medium);">
+            <a href="{{ url_for('dashboard') }}" style="color: var(--blue-medium); text-decoration: none; font-weight: 600;
+            background-color: var(--white); border-radius: 9999px; padding: 8px 16px; max-width: 100px;">← Home</a>
+        </nav>
+
+        <div class="card">
+            <h1 style="font-size: 28px; font-weight: 700; color: var(--orange); margin-bottom: 8px;">
+                Add Chapter {{ next_number }}
+            </h1>
+            <p style="color: var(--blue-medium); margin-bottom: 32px;">
+                Novel: <strong>{{ novel.title }}</strong>
+            </p>
+
+            <form method="POST" action="{{ url_for('create_chapter', novel_id=novel.id) }}">
+                <div class="form-field">
+                    <label>Chapter Title</label>
+                    <input type="text" name="title"
+                           placeholder="Example: The Eternal"
+                           value="{{ request.form.title or '' }}" required />
+                </div>
+
+                <div class="form-field">
+                    <label>Content</label>
+                    <textarea name="content" rows="20"
+                              placeholder="Write your story here...">{{ request.form.content or '' }}</textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="btn-orange" style="font-size: 16px; padding: 14px 32px;">
+                        Publish
+                    </button>
+                    <a href="{{ url_for('novel_detail', novel_id=novel.id) }}" class="btn-blue" style="text-decoration: none; font-size: 16px; padding: 14px 32px;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+{% endblock %}
